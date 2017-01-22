@@ -1,0 +1,8 @@
+ora12se =
+    (DESCRIPTION =
+        (ADDRESS_LIST =
+            (ADDRESS = (PROTOCOL = TCP)(HOST = ora12se)(PORT = 1521))
+        ) (CONNECT_DATA =
+            (SID = ora12se) (SERVER = DEDICATED)
+        )
+    )
