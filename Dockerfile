@@ -21,12 +21,10 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_PID_FILE /var/run/apache2.pid
 ENV TNS_ADMIN /usr/local/instantclient/tns_admin
 
-# Expose apache.
-EXPOSE 80
-VOLUME /var/www $APACHE_LOG_DIR /usr/local/instantclient/tns_admin/
+
 
 # Copy this repo into place.
-ADD www /var/www/site
+
 # Oracle instantclient
 ADD instantclient-basic-linux.x64-12.1.0.2.0.zip /tmp/
 ADD instantclient-sdk-linux.x64-12.1.0.2.0.zip /tmp/
@@ -39,14 +37,23 @@ RUN rm /tmp/instantclient-basic-linux.x64-12.1.0.2.0.zip
 RUN rm /tmp/instantclient-sdk-linux.x64-12.1.0.2.0.zip
 RUN rm /tmp/instantclient-sqlplus-linux.x64-12.1.0.2.0.zip
 
-RUN ln -s /usr/local/instantclient_12_1 /usr/local/instantclient
+#RUN ln -s 
+
+RUN mv /usr/local/instantclient_12_1 /usr/local/instantclient
 RUN ln -s /usr/local/instantclient/libclntsh.so.12.1 /usr/local/instantclient/libclntsh.so
 RUN ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus
 RUN echo 'instantclient,/usr/local/instantclient' | pecl install oci8
-RUN echo "extension=oci8.so" > /etc/php/7.0/apache2/php.ini
+RUN echo "extension=oci8.so" > /etc/php/7.0/apache2/conf.d/15-oci.ini
+RUN mkdir /usr/local/instantclient/tns_admin/
+
+# Expose apache.
+EXPOSE 80
+RUN mkdir -p /var/www/site
+VOLUME /var/www $APACHE_LOG_DIR /usr/local/instantclient/tns_admin/
 # Update the default apache site with the config we created.
 ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 ADD tnsnames.ora /usr/local/instantclient/tns_admin/tnsnames.ora
+ADD www /var/www/site
 
 # By default start up apache in the foreground, override with /bin/bash for interative.
 CMD /usr/sbin/apache2ctl -D FOREGROUND
